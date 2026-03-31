@@ -28,3 +28,15 @@ jobs:
         --n_estimators 100 \
         --feature_set all \
         --dataset_version v2
+
+    - name: Run Multiple Experiments
+    
+    - run: |
+        echo "Running Experiment 1 (Base)"
+        python src/train.py --run_name run1 --model rf --n_estimators 100 --feature_set all --dataset_version v2
+
+        echo "Running Experiment 2 (Low Trees)"
+        python src/train.py --run_name run2 --model rf --n_estimators 10 --feature_set all --dataset_version v2
+
+        echo "Running Experiment 3 (Reduced Features)"
+        python src/train.py --run_name run3 --model rf --n_estimators 100 --feature_set reduced --dataset_version v2    
