@@ -3,6 +3,7 @@ import mlflow
 import joblib
 import json
 import argparse
+import os
 
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
@@ -33,6 +34,10 @@ def train(args):
     else:
         model = SVC()
 
+    # Create folders if not exist (VERY IMPORTANT)
+    os.makedirs("models", exist_ok=True)
+    os.makedirs("metrics", exist_ok=True)
+
     with mlflow.start_run(run_name=args.run_name):
         model.fit(X_train, y_train)
         preds = model.predict(X_test)
@@ -40,16 +45,20 @@ def train(args):
         acc = accuracy_score(y_test, preds)
         f1 = f1_score(y_test, preds, average="macro")
 
+        # Log params
         mlflow.log_param("model", args.model)
         mlflow.log_param("n_estimators", args.n_estimators)
         mlflow.log_param("feature_set", args.feature_set)
         mlflow.log_param("dataset_version", args.dataset_version)
 
+        # Log metrics
         mlflow.log_metric("accuracy", acc)
         mlflow.log_metric("f1_score", f1)
 
+        # Save model
         joblib.dump(model, "models/model.pkl")
 
+        # Save metrics JSON (REQUIRED in assignment)
         metrics = {
             "accuracy": acc,
             "f1_score": f1,
@@ -59,6 +68,24 @@ def train(args):
 
         with open("metrics/metrics.json", "w") as f:
             json.dump(metrics, f)
+
+        # ✅ GitHub Actions Summary (IMPORTANT)
+        summary = f"""
+# MLOps Pipeline Summary
+
+## Student Details
+- Name: {NAME}
+- Roll No: {ROLL_NO}
+
+## Metrics
+- Accuracy: {acc}
+- F1 Score: {f1}
+"""
+
+        if "GITHUB_STEP_SUMMARY" in os.environ:
+            with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+                f.write(summary)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
