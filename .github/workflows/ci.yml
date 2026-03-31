@@ -15,23 +15,16 @@ jobs:
       with:
         python-version: '3.10'
 
-    - run: pip install -r requirements.txt
+    - name: Install Dependencies
+      run: pip install -r requirements.txt
 
     - name: Create folders
       run: |
         mkdir -p models
         mkdir -p metrics
 
-    - run: |
-        python src/train.py --run_name ci_run \
-        --model rf \
-        --n_estimators 100 \
-        --feature_set all \
-        --dataset_version v2
-
     - name: Run Multiple Experiments
-    
-    - run: |
+      run: |
         echo "Running Experiment 1 (Base)"
         python src/train.py --run_name run1 --model rf --n_estimators 100 --feature_set all --dataset_version v2
 
@@ -39,4 +32,4 @@ jobs:
         python src/train.py --run_name run2 --model rf --n_estimators 10 --feature_set all --dataset_version v2
 
         echo "Running Experiment 3 (Reduced Features)"
-        python src/train.py --run_name run3 --model rf --n_estimators 100 --feature_set reduced --dataset_version v2    
+        python src/train.py --run_name run3 --model rf --n_estimators 100 --feature_set reduced --dataset_version v2
